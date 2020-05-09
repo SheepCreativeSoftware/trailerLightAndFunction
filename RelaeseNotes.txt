@@ -1,5 +1,8 @@
 Release Notes
 
+v0.0.2 09.05.2020
+- added License header
+
 v0.0.1 08.05.2020
 - Initial version
 - Copy from truckLightAndFunction
