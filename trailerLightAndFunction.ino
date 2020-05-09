@@ -59,52 +59,52 @@ int blink(unsigned int);
 
 
 void setup() {
-  // put your setup code here, to run once:
-  #if (WireCom == true)
-  Wire.begin(TrailerAdress);                 // join I2C bus (address optional for master)
-  #endif
-// TODO: Setup IO pins
+	// put your setup code here, to run once:
+	#if (WireCom == true)
+	Wire.begin(TrailerAdress);                 // join I2C bus (address optional for master)
+	#endif
+	// TODO: Setup IO pins
 }
 
 void loop() {                             // put your main code here, to run repeatedly:
-  bool errorFlag = false;                 // local var for error status
-  
-  
-  // Example For later Communication with other Module
-  // TODO: Setup Communication
-  #if (WireCom == true)
-  Wire.beginTransmission(8);             // transmit to device #8
-  Wire.write("Need to Setup COM");       // sends five bytes
-  Wire.endTransmission();                // stop transmitting
-  #endif
-  
-  controllerStatus(errorFlag);
+	bool errorFlag = false;                 // local var for error status
+
+
+	// Example For later Communication with other Module
+	// TODO: Setup Communication
+	#if (WireCom == true)
+	Wire.beginTransmission(8);             // transmit to device #8
+	Wire.write("Need to Setup COM");       // sends five bytes
+	Wire.endTransmission();                // stop transmitting
+	#endif
+
+	controllerStatus(errorFlag);
 }
 
 bool controllerStatus(bool errorFlag) {
-  if(errorFlag) {
-    return true;
-  } else {
-    unsigned long currentMillis = millis();
-    if (currentMillis - StatusPreviousMillis >= 1000) { //Zeitverzoegerte Abfrage
-      StatusPreviousMillis = currentMillis;
-      pulseStatus = !pulseStatus;
-    } else if (currentMillis < StatusPreviousMillis) {  //Reset
-      StatusPreviousMillis = currentMillis; 
-    }
-    return pulseStatus;                 //Flash if everything is OK
-  }
+	if(errorFlag) {
+		return true;
+	} else {
+		unsigned long currentMillis = millis();
+		if (currentMillis - StatusPreviousMillis >= 1000) { //Zeitverzoegerte Abfrage
+		StatusPreviousMillis = currentMillis;
+		pulseStatus = !pulseStatus;
+	} else if (currentMillis < StatusPreviousMillis) {  //Reset
+		StatusPreviousMillis = currentMillis; 
+	}
+		return pulseStatus;                 //Flash if everything is OK
+	}
 }
 
 int blink(unsigned int blinkTimeMillis) {
-  if((blinkOnTime == 0) || (blinkOnTime > millis())){ //Reset blinkOnTime on startup and on overflow.
-    blinkOnTime = millis();
-  }
-  unsigned long blinkTime = millis() - blinkOnTime;
-  if(blinkTime%blinkTimeMillis >= blinkTimeMillis/2){ //ON/OFF Interval at half of Time.
-    return 0;
-  } else {
-    return 1;
-  }
+	if((blinkOnTime == 0) || (blinkOnTime > millis())){ //Reset blinkOnTime on startup and on overflow.
+		blinkOnTime = millis();
+	}
+		unsigned long blinkTime = millis() - blinkOnTime;
+		if(blinkTime%blinkTimeMillis >= blinkTimeMillis/2){ //ON/OFF Interval at half of Time.
+		return 0;
+	} else {
+		return 1;
+	}
 
 }
