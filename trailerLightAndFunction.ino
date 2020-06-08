@@ -75,7 +75,8 @@
 //
 // SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
 //                            pins are NOT connected to anything by default.
-#if (SERIAL_PORT_MONITOR != SERIAL_PORT_HARDWARE) 	//if serial ports are different then the arduino has more than one serial port
+//Setup Serial and check if Board is UNO with one Serial or Leonardo/Micro with to Serials
+#if defined(HAVE_HWSERIAL1)							//if serial ports 1 exist then the arduino has more than one serial port
 	#ifndef SerialUSB								//if not allready defined
 		#define SerialUSB SERIAL_PORT_MONITOR		//then define monitor port
 	#endif
@@ -89,12 +90,12 @@
 #endif
 
 bool pulseStatus = false;
-unsigned long StatusPreviousMillis = 0;
-unsigned long blinkOnTime = 0;
+uint32_t StatusPreviousMillis = 0;
+uint32_t blinkOnTime = 0;
 
 //Functions
 bool controllerStatus(bool);
-int blink(unsigned int);
+uint8_t blink(uint16_t);
 
 
 void setup() {
@@ -120,7 +121,7 @@ bool controllerStatus(bool errorFlag) {
 	if(errorFlag) {
 		return true;
 	} else {
-		unsigned long currentMillis = millis();
+		uint32_t currentMillis = millis();
 		if (currentMillis - StatusPreviousMillis >= 1000) { //Zeitverzoegerte Abfrage
 		StatusPreviousMillis = currentMillis;
 		pulseStatus = !pulseStatus;
@@ -131,11 +132,11 @@ bool controllerStatus(bool errorFlag) {
 	}
 }
 
-int blink(unsigned int blinkTimeMillis) {
+uint8_t blink(uint16_t blinkTimeMillis) {
 	if((blinkOnTime == 0) || (blinkOnTime > millis())){ //Reset blinkOnTime on startup and on overflow.
 		blinkOnTime = millis();
 	}
-		unsigned long blinkTime = millis() - blinkOnTime;
+		uint32_t blinkTime = millis() - blinkOnTime;
 		if(blinkTime%blinkTimeMillis >= blinkTimeMillis/2){ //ON/OFF Interval at half of Time.
 		return 0;
 	} else {
