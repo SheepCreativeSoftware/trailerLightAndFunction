@@ -1,3 +1,5 @@
+#include <Arduino.h>
+#line 1 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
 /************************************ 
  * trailerLightAndFunction v0.0.3
  * Date: 08.06.2020 | 18:13
@@ -27,7 +29,7 @@
 /************************************
  * Include Files
  ************************************/
-#include "serialCommSlave.h"
+
 
 
 
@@ -58,13 +60,19 @@ bool controllerStatus(bool);
 uint8_t blink(uint16_t);
 
 
+#line 61 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
+void setup();
+#line 69 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
+void loop();
+#line 80 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
+bool controllerStatus(bool errorFlag);
+#line 95 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
+uint8_t blink(uint16_t blinkTimeMillis);
+#line 61 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
 void setup() {
+	// put your setup code here, to run once:
 	#if (SERIAL_COM == true)
-	serialConfigure(&SerialHW,			// Serial interface on arduino
-					19200,				// Baudrate
-					SERIAL_8N1,			// e.g. SERIAL_8N1 | start bit, data bit, stop bit
-					outTxEnablePin		// Pin to switch between Transmit and Receive
-	);
+	SerialHW.begin(115200);  // start Serial for Communication
 	#endif
 	// TODO: Setup IO pins
 }
@@ -72,17 +80,9 @@ void setup() {
 void loop() {                             // put your main code here, to run repeatedly:
 	bool errorFlag = false;                 // local var for error status
 
-	#if (SERIAL_COM)
-	serialUpdate();								// Update Data from serial communication
-	bool parkLightState = getLightData(PARKLIGHT);	// Get Light State from Serial Interface
-	bool brakeLightState = getLightData(BRAKELIGHT);	// Get Light State from Serial Interface
-	bool reverseLightState = getLightData(REVERSELIGHT);	// Get Light State from Serial Interface
-	bool rightBlinkLightState = getLightData(RIGHTBLINK);	// Get Light State from Serial Interface
-	bool leftBlinkLightState = getLightData(LEFTBLINK);	// Get Light State from Serial Interface
-	bool auxLightState = getLightData(AUXLIGHT);	// Get Light State from Serial Interface
-	bool beaconLightState = getLightData(BEACONLIGHT);	// Get Light State from Serial Interface
-	bool dimmLightState = getLightData(DIMMLIGHTS);	// Get Light State from Serial Interface
-	#endif
+
+	// Example For later Communication with other Module
+	// TODO: Setup Communication
 	
 
 	controllerStatus(errorFlag);
@@ -102,3 +102,17 @@ bool controllerStatus(bool errorFlag) {
 		return pulseStatus;                 //Flash if everything is OK
 	}
 }
+
+uint8_t blink(uint16_t blinkTimeMillis) {
+	if((blinkOnTime == 0) || (blinkOnTime > millis())){ //Reset blinkOnTime on startup and on overflow.
+		blinkOnTime = millis();
+	}
+		uint32_t blinkTime = millis() - blinkOnTime;
+		if(blinkTime%blinkTimeMillis >= blinkTimeMillis/2){ //ON/OFF Interval at half of Time.
+		return 0;
+	} else {
+		return 1;
+	}
+
+}
+
