@@ -28,16 +28,15 @@
 /************************************
  * Include Files
  ************************************/
-
-
-
+# 31 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino" 2
+# 32 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino" 2
 
 /************************************
  * Definition and Initialisation 
  * Global Vars, Classes and Functions
  ************************************/
 //Setup Serial and check if Board is UNO with one Serial or Leonardo/Micro with to Serials
-# 52 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
+# 51 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
 bool pulseStatus = false;
 uint32_t StatusPreviousMillis = 0;
 uint32_t blinkOnTime = 0;
@@ -48,20 +47,60 @@ uint8_t blink(uint16_t);
 
 
 void setup() {
- // put your setup code here, to run once:
 
- Serial1 /*then define hardware port*/.begin(115200); // start Serial for Communication
+ serialConfigure(&Serial1 /*then define hardware port*/, // Serial interface on arduino
+     19200, // Baudrate
+     0x06, // e.g. SERIAL_8N1 | start bit, data bit, stop bit
+     2 // Pin to switch between Transmit and Receive
+ );
 
- // TODO: Setup IO pins
+
+
+
+ initLightOutput(); // Init SoftPWM Lib
+ setupLightOutput(7 /*Parking light output pin*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
+ setupLightOutput(3 /*Rear left flashing light output pin | PWM Needed for US*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
+ setupLightOutput(4 /*Rear right flashing light output pin | PWM Needed for US*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
+ setupLightOutput(5 /*Rear left flashing light output pin | PWM Needed for US*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
+ setupLightOutput(6 /*Rear right flashing light output pin | PWM Needed for US*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
+ setupLightOutput(8 /*Reverse light output pin*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
+ setupLightOutput(9 /*Brake light output pin | PWM for Parking Light*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
+ setupLightOutput(12 /*Reserved for Special Auxiliary Light*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
 }
 
 void loop() { // put your main code here, to run repeatedly:
  bool errorFlag = false; // local var for error status
 
 
- // Example For later Communication with other Module
- // TODO: Setup Communication
+ serialUpdate(); // Update Data from serial communication
+ bool parkLightState = getLightData(0); // Get Light State from Serial Interface
+ bool brakeLightState = getLightData(1); // Get Light State from Serial Interface
+ bool reverseLightState = getLightData(2); // Get Light State from Serial Interface
+ bool rightBlinkLightState = getLightData(3); // Get Light State from Serial Interface
+ bool leftBlinkLightState = getLightData(4); // Get Light State from Serial Interface
+ bool auxLightState = getLightData(5); // Get Light State from Serial Interface
+ bool beaconLightState = getLightData(6); // Get Light State from Serial Interface
+ bool dimmLightState = getLightData(7); // Get Light State from Serial Interface
 
+
+ uint8_t normalDimming = starterDimming(dimmLightState, 255, 5 /* Divisor for Dimming function*/, 2 /* 0-255 MAX Value for all light when active starter is activ*/);
+ uint8_t parkDimming = starterDimming(dimmLightState, 100 /* 0-255 Value for dimming the parking light*/, 5 /* Divisor for Dimming function*/, 2 /* 0-255 MAX Value for all light when active starter is activ*/);
+
+ setBooleanLight(7 /*Parking light output pin*/, parkLightState, parkDimming);
+
+ setBooleanLight(5 /*Rear left flashing light output pin | PWM Needed for US*/, leftBlinkLightState, normalDimming);
+ setBooleanLight(6 /*Rear right flashing light output pin | PWM Needed for US*/, rightBlinkLightState, normalDimming);
+
+
+ setBooleanLight(3 /*Rear left flashing light output pin | PWM Needed for US*/, leftBlinkLightState, normalDimming);
+ setBooleanLight(4 /*Rear right flashing light output pin | PWM Needed for US*/, rightBlinkLightState, normalDimming);
+
+
+ // Option for US needed
+
+ setBooleanLight(8 /*Reverse light output pin*/, reverseLightState, normalDimming);
+ setBooleanLight(9 /*Brake light output pin | PWM for Parking Light*/, reverseLightState, normalDimming);
+ setBooleanLight(12 /*Reserved for Special Auxiliary Light*/, reverseLightState, normalDimming);
 
  controllerStatus(errorFlag);
 }
@@ -79,17 +118,4 @@ bool controllerStatus(bool errorFlag) {
  }
   return pulseStatus; //Flash if everything is OK
  }
-}
-
-uint8_t blink(uint16_t blinkTimeMillis) {
- if((blinkOnTime == 0) || (blinkOnTime > millis())){ //Reset blinkOnTime on startup and on overflow.
-  blinkOnTime = millis();
- }
-  uint32_t blinkTime = millis() - blinkOnTime;
-  if(blinkTime%blinkTimeMillis >= blinkTimeMillis/2){ //ON/OFF Interval at half of Time.
-  return 0;
- } else {
-  return 1;
- }
-
 }

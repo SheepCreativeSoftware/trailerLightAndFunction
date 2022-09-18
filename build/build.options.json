@@ -1,5 +1,5 @@
 {
-  "additionalFiles": "..,..,..,..,..",
+  "additionalFiles": "..,..,..,..,..,..,..",
   "builtInLibrariesFolders": "/home/magraina/Downloads/arduino-1.8.19-linux64/arduino-1.8.19/libraries",
   "builtInToolsFolders": "/home/magraina/Downloads/arduino-1.8.19-linux64/arduino-1.8.19/tools-builder,/home/magraina/Downloads/arduino-1.8.19-linux64/arduino-1.8.19/hardware/tools/avr,/home/magraina/.arduino15/packages",
   "compiler.optimization_flags": "",

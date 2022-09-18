@@ -1,6 +1,6 @@
 /************************************ 
- * trailerLightAndFunction v0.0.3
- * Date: 08.06.2020 | 18:13
+ * trailerLightAndFunction v0.1.0
+ * Date: 18.09.2020 | 12:08
  * by M.Egner
  * <Trailer Module for Truck Light and function module>
  * Copyright (C) 2020 Marina Egner <info@sheepindustries.de>
@@ -28,8 +28,7 @@
  * Include Files
  ************************************/
 #include "serialCommSlave.h"
-
-
+#include "lightFunctions.h"
 
 /************************************
  * Definition and Initialisation 
@@ -66,7 +65,18 @@ void setup() {
 					outTxEnablePin		// Pin to switch between Transmit and Receive
 	);
 	#endif
-	// TODO: Setup IO pins
+	#if (DEBUGLEVEL >= 2)
+	pinMode(outStatusLed, OUTPUT);
+	#endif
+	initLightOutput();			// Init SoftPWM Lib
+	setupLightOutput(outParkingLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outSideLeftFlashLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outSideRightFlashLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outRearLeftFlashLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outRearRightFlashLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outReverseLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outBrakeLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outAuxLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
 }
 
 void loop() {                             // put your main code here, to run repeatedly:
@@ -84,8 +94,28 @@ void loop() {                             // put your main code here, to run rep
 	bool dimmLightState = getLightData(DIMMLIGHTS);	// Get Light State from Serial Interface
 	#endif
 	
+	uint8_t normalDimming = starterDimming(dimmLightState, SOFT_PWM_HIGH, STARTER_DIMM_DIVISOR, STARTER_DIMM_MULTI1);
+	uint8_t parkDimming = starterDimming(dimmLightState, PARKING_DIMM, STARTER_DIMM_DIVISOR, STARTER_DIMM_MULTI1);
 
-	controllerStatus(errorFlag);
+	setBooleanLight(outParkingLight, parkLightState, parkDimming);
+	
+	setBooleanLight(outRearLeftFlashLight, leftBlinkLightState, normalDimming);
+	setBooleanLight(outRearRightFlashLight, rightBlinkLightState, normalDimming);
+
+	#if(COUNTRY_OPTION == EU)
+	setBooleanLight(outSideLeftFlashLight, leftBlinkLightState, normalDimming);
+	setBooleanLight(outSideRightFlashLight, rightBlinkLightState, normalDimming);
+	#endif
+
+	// Option for US needed
+
+	setBooleanLight(outReverseLight, reverseLightState, normalDimming);
+	setBooleanLight(outBrakeLight, brakeLightState, normalDimming);
+	setBooleanLight(outAuxLight, auxLightState, normalDimming);
+
+	#if (DEBUGLEVEL >= 1)
+	digitalWrite(outStatusLed, controllerStatus(errorFlag));
+	#endif
 }
 
 bool controllerStatus(bool errorFlag) {

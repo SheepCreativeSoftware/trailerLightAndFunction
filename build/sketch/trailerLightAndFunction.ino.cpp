@@ -29,9 +29,8 @@
 /************************************
  * Include Files
  ************************************/
-
-
-
+#include "serialCommSlave.h"
+#include "lightFunctions.h"
 
 /************************************
  * Definition and Initialisation 
@@ -60,30 +59,68 @@ bool controllerStatus(bool);
 uint8_t blink(uint16_t);
 
 
-#line 61 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
+#line 60 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
 void setup();
-#line 69 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
+#line 82 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
 void loop();
-#line 80 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
+#line 119 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
 bool controllerStatus(bool errorFlag);
-#line 95 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
-uint8_t blink(uint16_t blinkTimeMillis);
-#line 61 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
+#line 60 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
 void setup() {
-	// put your setup code here, to run once:
 	#if (SERIAL_COM == true)
-	SerialHW.begin(115200);  // start Serial for Communication
+	serialConfigure(&SerialHW,			// Serial interface on arduino
+					19200,				// Baudrate
+					SERIAL_8N1,			// e.g. SERIAL_8N1 | start bit, data bit, stop bit
+					outTxEnablePin		// Pin to switch between Transmit and Receive
+	);
 	#endif
-	// TODO: Setup IO pins
+	#if (DEBUGLEVEL >= 2)
+	pinMode(outStatusLed, OUTPUT);
+	#endif
+	initLightOutput();			// Init SoftPWM Lib
+	setupLightOutput(outParkingLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outSideLeftFlashLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outSideRightFlashLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outRearLeftFlashLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outRearRightFlashLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outReverseLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outBrakeLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
+	setupLightOutput(outAuxLight, LIGHT_FADE_ON_TIME, LIGHT_FADE_OFF_TIME); // Create and set pin | Set fade up and down time for pin
 }
 
 void loop() {                             // put your main code here, to run repeatedly:
 	bool errorFlag = false;                 // local var for error status
 
-
-	// Example For later Communication with other Module
-	// TODO: Setup Communication
+	#if (SERIAL_COM)
+	serialUpdate();								// Update Data from serial communication
+	bool parkLightState = getLightData(PARKLIGHT);	// Get Light State from Serial Interface
+	bool brakeLightState = getLightData(BRAKELIGHT);	// Get Light State from Serial Interface
+	bool reverseLightState = getLightData(REVERSELIGHT);	// Get Light State from Serial Interface
+	bool rightBlinkLightState = getLightData(RIGHTBLINK);	// Get Light State from Serial Interface
+	bool leftBlinkLightState = getLightData(LEFTBLINK);	// Get Light State from Serial Interface
+	bool auxLightState = getLightData(AUXLIGHT);	// Get Light State from Serial Interface
+	bool beaconLightState = getLightData(BEACONLIGHT);	// Get Light State from Serial Interface
+	bool dimmLightState = getLightData(DIMMLIGHTS);	// Get Light State from Serial Interface
+	#endif
 	
+	uint8_t normalDimming = starterDimming(dimmLightState, SOFT_PWM_HIGH, STARTER_DIMM_DIVISOR, STARTER_DIMM_MULTI1);
+	uint8_t parkDimming = starterDimming(dimmLightState, PARKING_DIMM, STARTER_DIMM_DIVISOR, STARTER_DIMM_MULTI1);
+
+	setBooleanLight(outParkingLight, parkLightState, parkDimming);
+	
+	setBooleanLight(outRearLeftFlashLight, leftBlinkLightState, normalDimming);
+	setBooleanLight(outRearRightFlashLight, rightBlinkLightState, normalDimming);
+
+	#if(COUNTRY_OPTION == EU)
+	setBooleanLight(outSideLeftFlashLight, leftBlinkLightState, normalDimming);
+	setBooleanLight(outSideRightFlashLight, rightBlinkLightState, normalDimming);
+	#endif
+
+	// Option for US needed
+
+	setBooleanLight(outReverseLight, reverseLightState, normalDimming);
+	setBooleanLight(outBrakeLight, reverseLightState, normalDimming);
+	setBooleanLight(outAuxLight, reverseLightState, normalDimming);
 
 	controllerStatus(errorFlag);
 }
@@ -101,18 +138,5 @@ bool controllerStatus(bool errorFlag) {
 	}
 		return pulseStatus;                 //Flash if everything is OK
 	}
-}
-
-uint8_t blink(uint16_t blinkTimeMillis) {
-	if((blinkOnTime == 0) || (blinkOnTime > millis())){ //Reset blinkOnTime on startup and on overflow.
-		blinkOnTime = millis();
-	}
-		uint32_t blinkTime = millis() - blinkOnTime;
-		if(blinkTime%blinkTimeMillis >= blinkTimeMillis/2){ //ON/OFF Interval at half of Time.
-		return 0;
-	} else {
-		return 1;
-	}
-
 }
 

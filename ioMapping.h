@@ -30,11 +30,13 @@
 
 //Outputs
 #define outStatusLed 13                   //Arduino status LED output Pin
-#define outParkingLight 4                 //Parking light output pin
+#define outParkingLight 7                 //Parking light output pin
+#define outSideLeftFlashLight 3           //Rear left flashing light output pin | PWM Needed for US
+#define outSideRightFlashLight 4          //Rear right flashing light output pin | PWM Needed for US
 #define outRearLeftFlashLight 5           //Rear left flashing light output pin | PWM Needed for US
 #define outRearRightFlashLight 6          //Rear right flashing light output pin | PWM Needed for US
-#define outReverseLight 7                 //Reverse light output pin
-#define outBrakeLight 11                  //Brake light output pin | PWM for Parking Light
+#define outReverseLight 8                 //Reverse light output pin
+#define outBrakeLight 9                  //Brake light output pin | PWM for Parking Light
 #define outAuxLight 12                    //Reserved for Special Auxiliary Light
 //Free IOs 0, 1, 4, 7, 18, 19
 

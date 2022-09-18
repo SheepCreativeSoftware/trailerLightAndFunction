@@ -11,11 +11,26 @@
   },
   {
     "Sourcefile": "/home/magraina/projects/trailerLightAndFunction/build/sketch/trailerLightAndFunction.ino.cpp",
+    "Include": "SoftPWM.h",
+    "Includepath": "/home/magraina/Arduino/libraries/SoftPWM"
+  },
+  {
+    "Sourcefile": "/home/magraina/projects/trailerLightAndFunction/build/sketch/trailerLightAndFunction.ino.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "/home/magraina/projects/trailerLightAndFunction/build/sketch/lightFunctions.cpp",
     "Include": "",
     "Includepath": null
   },
   {
     "Sourcefile": "/home/magraina/projects/trailerLightAndFunction/build/sketch/serialCommSlave.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "/home/magraina/Arduino/libraries/SoftPWM/SoftPWM.cpp",
     "Include": "",
     "Includepath": null
   }
