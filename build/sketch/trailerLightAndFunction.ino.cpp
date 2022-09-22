@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #line 1 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
 /************************************ 
- * trailerLightAndFunction v0.0.3
- * Date: 08.06.2020 | 18:13
+ * trailerLightAndFunction v0.1.0
+ * Date: 18.09.2020 | 12:08
  * by M.Egner
  * <Trailer Module for Truck Light and function module>
  * Copyright (C) 2020 Marina Egner <info@sheepindustries.de>
@@ -63,7 +63,7 @@ uint8_t blink(uint16_t);
 void setup();
 #line 82 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
 void loop();
-#line 119 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
+#line 127 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
 bool controllerStatus(bool errorFlag);
 #line 60 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
 void setup() {
@@ -104,9 +104,8 @@ void loop() {                             // put your main code here, to run rep
 	#endif
 	
 	uint8_t normalDimming = starterDimming(dimmLightState, SOFT_PWM_HIGH, STARTER_DIMM_DIVISOR, STARTER_DIMM_MULTI1);
-	uint8_t parkDimming = starterDimming(dimmLightState, PARKING_DIMM, STARTER_DIMM_DIVISOR, STARTER_DIMM_MULTI1);
 
-	setBooleanLight(outParkingLight, parkLightState, parkDimming);
+	setBooleanLight(outParkingLight, parkLightState, normalDimming);
 	
 	setBooleanLight(outRearLeftFlashLight, leftBlinkLightState, normalDimming);
 	setBooleanLight(outRearRightFlashLight, rightBlinkLightState, normalDimming);
@@ -118,11 +117,20 @@ void loop() {                             // put your main code here, to run rep
 
 	// Option for US needed
 
-	setBooleanLight(outReverseLight, reverseLightState, normalDimming);
-	setBooleanLight(outBrakeLight, reverseLightState, normalDimming);
-	setBooleanLight(outAuxLight, reverseLightState, normalDimming);
+	#if (BRAKE_IS_PARKING)
+	uint8_t parkDimming = starterDimming(dimmLightState, BRAKE_PARK_DIMM, STARTER_DIMM_DIVISOR, STARTER_DIMM_MULTI1);
+	setBrakingWithPark(outBrakeLight, parkLightState, brakeLightState, parkDimming, normalDimming);
+	#else
+	setBooleanLight(outBrakeLight, brakeLightState, normalDimming);
+	#endif
 
-	controllerStatus(errorFlag);
+	setBooleanLight(outReverseLight, reverseLightState, normalDimming);
+	
+	setBooleanLight(outAuxLight, auxLightState, normalDimming);
+
+	#if (DEBUGLEVEL >= 1)
+	digitalWrite(outStatusLed, controllerStatus(errorFlag));
+	#endif
 }
 
 bool controllerStatus(bool errorFlag) {

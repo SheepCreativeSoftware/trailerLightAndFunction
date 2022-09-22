@@ -36,7 +36,7 @@
 #define outRearLeftFlashLight 5           //Rear left flashing light output pin | PWM Needed for US
 #define outRearRightFlashLight 6          //Rear right flashing light output pin | PWM Needed for US
 #define outReverseLight 8                 //Reverse light output pin
-#define outBrakeLight 9                  //Brake light output pin | PWM for Parking Light
+#define outBrakeLight 11                  //Brake light output pin | PWM for Parking Light
 #define outAuxLight 12                    //Reserved for Special Auxiliary Light
 //Free IOs 0, 1, 4, 7, 18, 19
 

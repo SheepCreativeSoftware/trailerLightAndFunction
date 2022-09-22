@@ -95,9 +95,8 @@ void loop() {                             // put your main code here, to run rep
 	#endif
 	
 	uint8_t normalDimming = starterDimming(dimmLightState, SOFT_PWM_HIGH, STARTER_DIMM_DIVISOR, STARTER_DIMM_MULTI1);
-	uint8_t parkDimming = starterDimming(dimmLightState, PARKING_DIMM, STARTER_DIMM_DIVISOR, STARTER_DIMM_MULTI1);
 
-	setBooleanLight(outParkingLight, parkLightState, parkDimming);
+	setBooleanLight(outParkingLight, parkLightState, normalDimming);
 	
 	setBooleanLight(outRearLeftFlashLight, leftBlinkLightState, normalDimming);
 	setBooleanLight(outRearRightFlashLight, rightBlinkLightState, normalDimming);
@@ -109,8 +108,15 @@ void loop() {                             // put your main code here, to run rep
 
 	// Option for US needed
 
-	setBooleanLight(outReverseLight, reverseLightState, normalDimming);
+	#if (BRAKE_IS_PARKING)
+	uint8_t parkDimming = starterDimming(dimmLightState, BRAKE_PARK_DIMM, STARTER_DIMM_DIVISOR, STARTER_DIMM_MULTI1);
+	setBrakingWithPark(outBrakeLight, parkLightState, brakeLightState, parkDimming, normalDimming);
+	#else
 	setBooleanLight(outBrakeLight, brakeLightState, normalDimming);
+	#endif
+
+	setBooleanLight(outReverseLight, reverseLightState, normalDimming);
+	
 	setBooleanLight(outAuxLight, auxLightState, normalDimming);
 
 	#if (DEBUGLEVEL >= 1)

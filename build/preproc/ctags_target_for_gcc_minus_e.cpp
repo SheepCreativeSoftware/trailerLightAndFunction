@@ -1,7 +1,7 @@
 # 1 "/home/magraina/projects/trailerLightAndFunction/trailerLightAndFunction.ino"
 /************************************ 
- * trailerLightAndFunction v0.0.3
- * Date: 08.06.2020 | 18:13
+ * trailerLightAndFunction v0.1.0
+ * Date: 18.09.2020 | 12:08
  * by M.Egner
  * <Trailer Module for Truck Light and function module>
  * Copyright (C) 2020 Marina Egner <info@sheepindustries.de>
@@ -64,7 +64,7 @@ void setup() {
  setupLightOutput(5 /*Rear left flashing light output pin | PWM Needed for US*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
  setupLightOutput(6 /*Rear right flashing light output pin | PWM Needed for US*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
  setupLightOutput(8 /*Reverse light output pin*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
- setupLightOutput(9 /*Brake light output pin | PWM for Parking Light*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
+ setupLightOutput(11 /*Brake light output pin | PWM for Parking Light*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
  setupLightOutput(12 /*Reserved for Special Auxiliary Light*/, 200 /* 200ms Fade on time for the Light*/, 200 /* 200ms Fade off time for the Light*/); // Create and set pin | Set fade up and down time for pin
 }
 
@@ -84,9 +84,8 @@ void loop() { // put your main code here, to run repeatedly:
 
 
  uint8_t normalDimming = starterDimming(dimmLightState, 255, 5 /* Divisor for Dimming function*/, 2 /* 0-255 MAX Value for all light when active starter is activ*/);
- uint8_t parkDimming = starterDimming(dimmLightState, 100 /* 0-255 Value for dimming the parking light*/, 5 /* Divisor for Dimming function*/, 2 /* 0-255 MAX Value for all light when active starter is activ*/);
 
- setBooleanLight(7 /*Parking light output pin*/, parkLightState, parkDimming);
+ setBooleanLight(7 /*Parking light output pin*/, parkLightState, normalDimming);
 
  setBooleanLight(5 /*Rear left flashing light output pin | PWM Needed for US*/, leftBlinkLightState, normalDimming);
  setBooleanLight(6 /*Rear right flashing light output pin | PWM Needed for US*/, rightBlinkLightState, normalDimming);
@@ -98,11 +97,20 @@ void loop() { // put your main code here, to run repeatedly:
 
  // Option for US needed
 
- setBooleanLight(8 /*Reverse light output pin*/, reverseLightState, normalDimming);
- setBooleanLight(9 /*Brake light output pin | PWM for Parking Light*/, reverseLightState, normalDimming);
- setBooleanLight(12 /*Reserved for Special Auxiliary Light*/, reverseLightState, normalDimming);
 
- controllerStatus(errorFlag);
+ uint8_t parkDimming = starterDimming(dimmLightState, 100, 5 /* Divisor for Dimming function*/, 2 /* 0-255 MAX Value for all light when active starter is activ*/);
+ setBrakingWithPark(11 /*Brake light output pin | PWM for Parking Light*/, parkLightState, brakeLightState, parkDimming, normalDimming);
+
+
+
+
+ setBooleanLight(8 /*Reverse light output pin*/, reverseLightState, normalDimming);
+
+ setBooleanLight(12 /*Reserved for Special Auxiliary Light*/, auxLightState, normalDimming);
+
+
+ digitalWrite(13 /*Arduino status LED output Pin*/, controllerStatus(errorFlag));
+
 }
 
 bool controllerStatus(bool errorFlag) {
