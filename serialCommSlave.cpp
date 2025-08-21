@@ -38,6 +38,7 @@ uint16_t errorCount;				// Count each invalid signal
 HardwareSerial* SerialPort;			// Serial Port for communication
 
 uint8_t lightDataFromSerial;		// Holds Light data in Binary
+uint8_t additionalDataFromSerial;	// Holds Additional data in Binary
 uint16_t servoMicrosFromSerial[2];	// Holds Servo Microseconds
 uint32_t lastValidPackage = 0;		// Time since last valid package over serial
 
@@ -90,8 +91,9 @@ uint16_t serialUpdate() {
 					lightDataFromSerial = frame[1];
 				} else if (function == FUNC_LIGHT_SERVO) {
 					lightDataFromSerial = frame[1];
-					servoMicrosFromSerial[0] = ((frame[2] << 8) | frame[3]); // combine the servo bytes
-					servoMicrosFromSerial[1] = ((frame[4] << 8) | frame[5]); // combine the servo bytes
+					additionalDataFromSerial = frame[2];
+					servoMicrosFromSerial[0] = ((frame[3] << 8) | frame[4]); // combine the servo bytes
+					servoMicrosFromSerial[1] = ((frame[5] << 8) | frame[6]); // combine the servo bytes
 				}
 				lastValidPackage = millis();
 
@@ -143,6 +145,10 @@ uint16_t calculateCRC(uint8_t bufferSize) {
 
 bool getLightData(uint8_t lightOption) {
 	return (lightDataFromSerial >> lightOption) & 0x1; // Shift the requested bit to the first position and return this bit by bitwise AND operation
+}
+
+bool getAdditionalData(uint8_t additionalOption) {
+	return (additionalDataFromSerial >> additionalOption) & 0x1; // Shift the requested bit to the first position and return this bit by bitwise AND operation
 }
 
 uint16_t getServoData(uint8_t servoOption) {

@@ -52,6 +52,7 @@ void serialConfigure(HardwareSerial *_SerialPort,	// Serial interface on arduino
 );
 uint16_t calculateCRC(uint8_t bufferSize);		// Calculate CRC based on buffersize
 bool getLightData(uint8_t lightOption);			// Get Light State from Serial Interface
+bool getAdditionalData(uint8_t additionalOption);	// Get Additional Data from Serial Interface
 uint16_t getServoData(uint8_t servoOption);		// Get Servo State from Serial Interface
 
 #endif

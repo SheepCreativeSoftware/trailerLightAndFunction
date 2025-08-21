@@ -139,6 +139,9 @@ void loop() {                             // put your main code here, to run rep
 	bool auxLightState = getLightData(LightIdentifier::AUX_LIGHT);
 	bool beaconLightState = getLightData(LightIdentifier::BEACON_LIGHT);
 	bool isStarterActive = getLightData(LightIdentifier::DIMM_LIGHTS);
+	bool isLeftTurnIndicatorActive = getAdditionalData(0);
+	bool isRightTurnIndicatorActive = getAdditionalData(1);
+	bool isHazardActive = getAdditionalData(2);
 
 	uint16_t servoChannel1Micros = getServoData(0);
 	uint16_t servoChannel2Micros = getServoData(1);
@@ -189,7 +192,7 @@ void loop() {                             // put your main code here, to run rep
 			);
 			break;
 		case CountryOption::US:
-			if (leftTurnIndicatorState) {
+			if (isLeftTurnIndicatorActive || isHazardActive) {
 				setBooleanLight(
 					vehicleConfig.rearLeftTurnLight.outputPin,
 					leftTurnIndicatorState, 
@@ -205,7 +208,7 @@ void loop() {                             // put your main code here, to run rep
 				);
 			}
 
-			if (rightTurnIndicatorState) {
+			if (isRightTurnIndicatorActive || isHazardActive) {
 				setBooleanLight(
 					vehicleConfig.rearRightTurnLight.outputPin,
 					rightTurnIndicatorState,

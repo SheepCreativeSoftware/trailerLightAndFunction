@@ -25,7 +25,7 @@
 VehicleConfig vehicleConfig = {
 	.generalConfig = {
 		.countryOption = CountryOption::US,
-		.debugLevel = DebugLevel::FUNCTION_STATE,
+		.debugLevel = DebugLevel::STATUS_ONLY,
 		.statusLightPin = 13
 	},
 	.generalLightConfig = {
