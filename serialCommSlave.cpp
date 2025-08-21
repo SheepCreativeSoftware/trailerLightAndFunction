@@ -23,7 +23,7 @@
 #define MIN_BUFFER_SIZE 4			// Min Buffersize to evaluate data
 #define BUFFER_EMPTY 0
 #define FUNC_LIGHT_DATA 1			// Function if receiving Light data
-#define FUNC_SERVO 2				// Function if receiving Servo data
+#define FUNC_LIGHT_SERVO 2			// Function if receiving Servo data
 #define MAX_TIME_SIGNAL 1000		// Maximum Time Received Data is valid
 #define WAIT_FOR_NEXT_BYTE 1000		// Time in microseconds to wait for next byte while receiving data
 
@@ -33,6 +33,7 @@
 
 uint8_t frame[BUFFER_SIZE];			// Frame Buffer for Serial Data
 uint8_t TxEnablePin;				// Pin to switch between Transmit and Receive
+uint8_t protocolVersion = 1;			// Protocol Version
 uint16_t errorCount;				// Count each invalid signal
 HardwareSerial* SerialPort;			// Serial Port for communication
 
@@ -43,13 +44,15 @@ uint32_t lastValidPackage = 0;		// Time since last valid package over serial
 void serialConfigure(HardwareSerial *_SerialPort,	// Serial interface on arduino
 					uint32_t baud,					// Baudrate
 					uint8_t byteFormat,				// e.g. SERIAL_8N1 | start bit, data bit, stop bit
-					uint8_t _TxEnablePin			// Pin to switch between Transmit and Receive
+					uint8_t _TxEnablePin,			// Pin to switch between Transmit and Receive
+					uint8_t _protocolVersion
 ) {
 	SerialPort = _SerialPort;						// Store on a global var
 	(*SerialPort).begin(baud, byteFormat);			// Init communication port
 	TxEnablePin = _TxEnablePin;						// Store on a global var for other functions
 	pinMode(TxEnablePin, OUTPUT);
 	digitalWrite(TxEnablePin, LOW);					// Set to low at start to receive data
+	protocolVersion = _protocolVersion;
 	errorCount = 0; 								// Initialize errorCount
 } 
 
@@ -85,9 +88,10 @@ uint16_t serialUpdate() {
 				// Function 1 is Light information data which has only one byte
 				if(function == FUNC_LIGHT_DATA) { 
 					lightDataFromSerial = frame[1];
-				} else if (function == FUNC_SERVO) {
-					servoMicrosFromSerial[0] = ((frame[1] << 8) | frame[2]); // combine the servo bytes
-					servoMicrosFromSerial[1] = ((frame[3] << 8) | frame[4]); // combine the servo bytes
+				} else if (function == FUNC_LIGHT_SERVO) {
+					lightDataFromSerial = frame[1];
+					servoMicrosFromSerial[0] = ((frame[2] << 8) | frame[3]); // combine the servo bytes
+					servoMicrosFromSerial[1] = ((frame[4] << 8) | frame[5]); // combine the servo bytes
 				}
 				lastValidPackage = millis();
 

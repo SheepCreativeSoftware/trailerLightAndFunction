@@ -22,6 +22,17 @@
 #include "Arduino.h"							// Add base lib
 
 // Strings for use in getLightData() for better reading
+enum LightIdentifier {
+	PARK_LIGHT = 0,
+	BRAKE_LIGHT = 1,
+	REVERSE_LIGHT = 2,
+	RIGHT_BLINK = 3,
+	LEFT_BLINK = 4,
+	AUX_LIGHT = 5,
+	BEACON_LIGHT = 6,
+	DIMM_LIGHTS = 7
+};
+
 #define PARKLIGHT 0
 #define BRAKELIGHT 1
 #define REVERSELIGHT 2
@@ -36,7 +47,8 @@ uint16_t serialUpdate();						// Update Data from serial communication
 void serialConfigure(HardwareSerial *_SerialPort,	// Serial interface on arduino
 					uint32_t baud,				// Baudrate
 					uint8_t byteFormat,			// e.g. SERIAL_8N1 | start bit, data bit, stop bit
-					uint8_t _TxEnablePin		// Pin to switch between Transmit and Receive
+					uint8_t _TxEnablePin,		// Pin to switch between Transmit and Receive
+					uint8_t _protocolVersion = 1	// Protocol Version
 );
 uint16_t calculateCRC(uint8_t bufferSize);		// Calculate CRC based on buffersize
 bool getLightData(uint8_t lightOption);			// Get Light State from Serial Interface

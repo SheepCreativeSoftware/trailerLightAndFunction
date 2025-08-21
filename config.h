@@ -16,20 +16,122 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+#include "vehicleConfig.h"
+
 /************************************
  * Configuration Programm
  ************************************/
-#define COUNTRY_OPTION EU						//Setup Region EU or US for Truck
-#define LIGHT_FADE_ON_TIME 200				// 200ms Fade on time for the Light
-#define LIGHT_FADE_OFF_TIME 200				// 200ms Fade off time for the Light
-#define NORMAL_LIGHT_DIMMING 255			// 0-255 Value for all light when active
-#define STARTER_DIMM_DIVISOR 5				// Divisor for Dimming function
-#define STARTER_DIMM_MULTI1 2				// 0-255 MAX Value for all light when active starter is activ
-#define BRAKE_IS_PARKING true				// 
-#define BRAKE_PARK_DIMM	50
-#define SERIAL_COM true							// Activate Communication to other modules via Serial 
 
-//Change this value for different debuging levels
-#define DEBUGLEVEL 1						////1 = Status LED | >2 = Serial Monitor
+VehicleConfig vehicleConfig = {
+	.generalConfig = {
+		.countryOption = CountryOption::US,
+		.debugLevel = DebugLevel::FUNCTION_STATE,
+		.statusLightPin = 13
+	},
+	.generalLightConfig = {
+		.fadeOnTime = 200,
+		.fadeOffTime = 200,
+		.starterDimmingFactor = 5,
+		.starterDimmingMultiplier = 2
+	},
+	.serialConfig = {
+		.isEnabled = true,
+		.outTxEnablePin = 2,
+		.baudRate = 19200,
+		.byteFormat = SERIAL_8N1,
+		.timeout = 1000,
+		.pollingInterval = 20,
+		.protocolVersion = ProtocolVersion::V2
+	},
+	.rearLeftTurnLight = {
+		.outputPin = 5,
+		.primaryOnBrightness = 255,
+		// Parking when combined
+		.secondaryOnBrightness = 15,
+		.tertiaryOnBrightness = 0,
+		.offBrightness = 0,
+		.fadeOnTime = 200,
+		.fadeOffTime = 200
+	},
+	.rearRightTurnLight = {
+		.outputPin = 4,
+		.primaryOnBrightness = 255,
+		// Parking when combined
+		.secondaryOnBrightness = 15,
+		.tertiaryOnBrightness = 0,
+		.offBrightness = 0,
+		.fadeOnTime = 200,
+		.fadeOffTime = 200
+	},
+	.sideLeftTurnLight = {
+		.outputPin = 8,
+		.primaryOnBrightness = 255,
+		.secondaryOnBrightness = 0,
+		.tertiaryOnBrightness = 0,
+		.offBrightness = 0,
+		.fadeOnTime = 200,
+		.fadeOffTime = 200
+	},
+	.sideRightTurnLight = {
+		.outputPin = 6,
+		.primaryOnBrightness = 255,
+		.secondaryOnBrightness = 0,
+		.tertiaryOnBrightness = 0,
+		.offBrightness = 0,
+		.fadeOnTime = 200,
+		.fadeOffTime = 200
+	},
+	.parkingLight = {
+		.outputPin = 7,
+		.primaryOnBrightness = 255,
+		.secondaryOnBrightness = 0,
+		.tertiaryOnBrightness = 0,
+		.offBrightness = 0,
+		.fadeOnTime = 200,
+		.fadeOffTime = 200
+	},
+	.reverseLight = {
+		.outputPin = 3,
+		.primaryOnBrightness = 255,
+		.secondaryOnBrightness = 0,
+		.tertiaryOnBrightness = 0,
+		.offBrightness = 0,
+		.fadeOnTime = 200,
+		.fadeOffTime = 200
+	},
+	.brakeLight = {
+		.outputPin = 11,
+		.primaryOnBrightness = 255,
+		// Parking when combined
+		.secondaryOnBrightness = 15,
+		.tertiaryOnBrightness = 0,
+		.offBrightness = 0,
+		.fadeOnTime = 200,
+		.fadeOffTime = 200
+	},
+	.auxLight = {
+		.outputPin = 12,
+		.primaryOnBrightness = 255,
+		.secondaryOnBrightness = 0,
+		.tertiaryOnBrightness = 0,
+		.offBrightness = 0,
+		.fadeOnTime = 200,
+		.fadeOffTime = 200
+	},
+	.servoChannel1 = {
+		.outputPin = 9,
+		.minMicroseconds = 1000,
+		.maxMicroseconds = 2000,
+		.defaultMicroseconds = 1500
+	},
+	.servoChannel2 = {
+		.outputPin = 10,
+		.minMicroseconds = 1000,
+		.maxMicroseconds = 2000,
+		.defaultMicroseconds = 1500
+	}
+};
+
+#define DEBUGLEVEL vehicleConfig.generalConfig.debugLevel
 
 #endif
