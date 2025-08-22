@@ -64,7 +64,7 @@ VehicleConfig vehicleConfig = {
 		.fadeOffTime = 200
 	},
 	.sideLeftTurnLight = {
-		.outputPin = 8,
+		.outputPin = 7,
 		.primaryOnBrightness = 255,
 		.secondaryOnBrightness = 0,
 		.tertiaryOnBrightness = 0,
@@ -82,7 +82,7 @@ VehicleConfig vehicleConfig = {
 		.fadeOffTime = 200
 	},
 	.parkingLight = {
-		.outputPin = 7,
+		.outputPin = 8,
 		.primaryOnBrightness = 255,
 		.secondaryOnBrightness = 0,
 		.tertiaryOnBrightness = 0,
@@ -126,9 +126,12 @@ VehicleConfig vehicleConfig = {
 	},
 	.servoChannel2 = {
 		.outputPin = 10,
-		.minMicroseconds = 1520,
+		.minMicroseconds = 1350,
 		.maxMicroseconds = 1850,
 		.defaultMicroseconds = 1500
+	},
+	.combinedBrakeTurnSignalLightConfig = {
+		.singleLightOption = true
 	}
 };
 

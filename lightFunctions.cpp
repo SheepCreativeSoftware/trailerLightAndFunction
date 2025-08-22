@@ -24,9 +24,9 @@ void setupLightOutput(uint8_t pin, uint16_t fadeOnTime, uint16_t fadeOffTime) {
 	SoftPWMSetFadeTime(pin, fadeOnTime, fadeOffTime); 	//Set Fade on/off time for output
 }
 
-void setBooleanLight(uint8_t pin, bool state, uint8_t highValue = SOFT_PWM_HIGH) {
+void setBooleanLight(uint8_t pin, bool state, uint8_t highValue = SOFT_PWM_HIGH, uint8_t lowValue = SOFT_PWM_LOW) {
 	if(state) SoftPWMSet(pin, highValue);
-	if(!state) SoftPWMSet(pin, SOFT_PWM_LOW);
+	if(!state) SoftPWMSet(pin, lowValue);
 }
 
 uint8_t starterDimming(bool active, uint8_t defaultDimValue, uint8_t divisor, uint8_t multiplier1) {

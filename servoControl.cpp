@@ -35,8 +35,6 @@ void positionServo(bool connectionStatus, Servo& servo, bool isUp, bool isDown, 
 		controlServo(connectionStatus, servo, maxMicroseconds, outputPin, minMicroseconds, maxMicroseconds);
 	} else if(!isUp && isDown) {
 		controlServo(connectionStatus, servo, minMicroseconds, outputPin, minMicroseconds, maxMicroseconds);
-	} else if(isUp && isDown) {
-		controlServo(connectionStatus, servo, 1520, outputPin, minMicroseconds, maxMicroseconds);
 	} else {
 		if(servo.attached()) servo.detach();
 	}

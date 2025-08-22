@@ -25,7 +25,7 @@
 //Functions
 void initLightOutput();			// Init SoftPWM Lib
 void setupLightOutput(uint8_t pin, uint16_t fadeOnTime, uint16_t fadeOffTime); // Create and set pin | Set fade up and down time for pin
-void setBooleanLight(uint8_t pin, bool state, uint8_t highValue = SOFT_PWM_HIGH);
+void setBooleanLight(uint8_t pin, bool state, uint8_t highValue = SOFT_PWM_HIGH, uint8_t lowValue = SOFT_PWM_LOW);
 uint8_t starterDimming(bool active, uint8_t defaultDimValue, uint8_t divisor, uint8_t multiplier1);
 void setBrakingWithPark(uint8_t pin, uint8_t parkState, uint8_t brakeState, uint8_t parkDimming, uint8_t highValue = SOFT_PWM_HIGH);
 

@@ -115,6 +115,9 @@ void setup() {
 		vehicleConfig.auxLight.fadeOffTime
 	);
 
+	pinMode(vehicleConfig.servoChannel1.outputPin, OUTPUT);
+	digitalWrite(vehicleConfig.servoChannel1.outputPin, LOW);
+
 	// Initialize brightness adjustment
 	brightnessAdjust.setupAdjustmentParameters(vehicleConfig.generalLightConfig.starterDimmingFactor, vehicleConfig.generalLightConfig.starterDimmingMultiplier);
 	brightnessAdjust.configureBrightnessLevels(LightType::PARKING, LightModes::PRIMARY, vehicleConfig.parkingLight.primaryOnBrightness);
@@ -233,11 +236,14 @@ void loop() {
 			);
 			break;
 		case CountryOption::US:
-			if (isLeftTurnIndicatorActive || isHazardActive) {
-				setBooleanLight(
+			bool isHazardLightOptionActive = vehicleConfig.combinedBrakeTurnSignalLightConfig.singleLightOption ? (!brakeLightState && isHazardActive) : isHazardActive;
+			if (isLeftTurnIndicatorActive || isHazardLightOptionActive) {
+				setBrakingWithPark(
 					vehicleConfig.rearLeftTurnLight.outputPin,
-					leftTurnIndicatorState, 
-					brightnessAdjust.getBrightnessLevel(LightType::REAR_LEFT_TURN)
+					parkLightState, 
+					leftTurnIndicatorState,
+					brightnessAdjust.getBrightnessLevel(LightType::REAR_LEFT_TURN, LightModes::SECONDARY),
+					brightnessAdjust.getBrightnessLevel(LightType::REAR_LEFT_TURN, LightModes::PRIMARY)
 				);
 			} else if (leftTurnIndicatorState == false) {
 				setBrakingWithPark(
@@ -249,11 +255,13 @@ void loop() {
 				);
 			}
 
-			if (isRightTurnIndicatorActive || isHazardActive) {
-				setBooleanLight(
+			if (isRightTurnIndicatorActive || isHazardLightOptionActive) {
+				setBrakingWithPark(
 					vehicleConfig.rearRightTurnLight.outputPin,
+					parkLightState,
 					rightTurnIndicatorState,
-					brightnessAdjust.getBrightnessLevel(LightType::REAR_RIGHT_TURN)
+					brightnessAdjust.getBrightnessLevel(LightType::REAR_RIGHT_TURN, LightModes::SECONDARY),
+					brightnessAdjust.getBrightnessLevel(LightType::REAR_RIGHT_TURN, LightModes::PRIMARY)
 				);
 			} else if (rightTurnIndicatorState == false) {
 				setBrakingWithPark(

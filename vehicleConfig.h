@@ -88,6 +88,10 @@ struct LightOutputChannel {
 	uint16_t fadeOffTime;
 };
 
+struct CombinedBrakeTurnSignalLightConfig {
+	bool singleLightOption;
+};
+
 struct ServoChannel {
 	// Hardware Pin on the Arduino for the Servo Channel
 	uint8_t outputPin;
@@ -114,6 +118,7 @@ struct VehicleConfig {
 	LightOutputChannel auxLight;
 	ServoChannel servoChannel1;
 	ServoChannel servoChannel2;
+	CombinedBrakeTurnSignalLightConfig combinedBrakeTurnSignalLightConfig;
 };
 
 #endif
