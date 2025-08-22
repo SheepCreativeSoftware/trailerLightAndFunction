@@ -127,7 +127,7 @@ VehicleConfig vehicleConfig = {
 	.servoChannel2 = {
 		.outputPin = 10,
 		.minMicroseconds = 1520,
-		.maxMicroseconds = 1950,
+		.maxMicroseconds = 1850,
 		.defaultMicroseconds = 1500
 	}
 };

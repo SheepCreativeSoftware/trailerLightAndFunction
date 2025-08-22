@@ -36,7 +36,9 @@ enum LightIdentifier {
 enum AdditionalDataIdentifier {
 	LEFT_TURN_INDICATOR = 0,
 	RIGHT_TURN_INDICATOR = 1,
-	HAZARD_STATE = 2
+	HAZARD_STATE = 2,
+	SERVO_POSITION_DOWN = 3,
+	SERVO_POSITION_UP = 4
 };
 
 enum ServoDataIdentifier {

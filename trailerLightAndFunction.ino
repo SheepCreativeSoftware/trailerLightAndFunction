@@ -152,9 +152,10 @@ void loop() {
 	bool isLeftTurnIndicatorActive = truckSerial.getAdditionalData(AdditionalDataIdentifier::LEFT_TURN_INDICATOR);
 	bool isRightTurnIndicatorActive = truckSerial.getAdditionalData(AdditionalDataIdentifier::RIGHT_TURN_INDICATOR);
 	bool isHazardActive = truckSerial.getAdditionalData(AdditionalDataIdentifier::HAZARD_STATE);
+	bool isServo2PositionUp = truckSerial.getAdditionalData(AdditionalDataIdentifier::SERVO_POSITION_UP);
+	bool isServo2PositionDown = truckSerial.getAdditionalData(AdditionalDataIdentifier::SERVO_POSITION_DOWN);
 
 	uint16_t servoChannel1Position = truckSerial.getServoData(ServoDataIdentifier::SERVO_CHANNEL_1);
-	uint16_t servoChannel2Position = truckSerial.getServoData(ServoDataIdentifier::SERVO_CHANNEL_2);
 
 	bool connectionStatus = truckSerial.getConnectionStatus();
 	if (connectionStatus == false) errorFlag = true;
@@ -172,10 +173,11 @@ void loop() {
 		vehicleConfig.servoChannel1.maxMicroseconds
 	);
 
-	controlServo(
+	positionServo(
 		connectionStatus,
 		servoChannel2,
-		servoChannel2Position,
+		isServo2PositionUp,
+		isServo2PositionDown,
 		vehicleConfig.servoChannel2.outputPin,
 		vehicleConfig.servoChannel2.minMicroseconds,
 		vehicleConfig.servoChannel2.maxMicroseconds
@@ -316,8 +318,10 @@ void loop() {
 				SerialUSB.println(servoChannel1Position);
 				SerialUSB.print("  - Servo Output 1: ");
 				SerialUSB.println(servoChannel1.read());
-				SerialUSB.print("  - Servo Channel 2: ");
-				SerialUSB.println(servoChannel2Position);
+				SerialUSB.print("  - Servo Channel 2 UP: ");
+				SerialUSB.println(isServo2PositionUp);
+				SerialUSB.print("  - Servo Channel 2 DOWN: ");
+				SerialUSB.println(isServo2PositionDown);
 				SerialUSB.print("  - Servo Output 2: ");
 				SerialUSB.println(servoChannel2.read());
 				SerialUSB.print("  - Connection Status: ");
