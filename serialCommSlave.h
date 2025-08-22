@@ -33,26 +33,71 @@ enum LightIdentifier {
 	DIMM_LIGHTS = 7
 };
 
-#define PARKLIGHT 0
-#define BRAKELIGHT 1
-#define REVERSELIGHT 2
-#define RIGHTBLINK 3
-#define LEFTBLINK 4
-#define AUXLIGHT 5
-#define BEACONLIGHT 6
-#define DIMMLIGHTS 7
+enum AdditionalDataIdentifier {
+	LEFT_TURN_INDICATOR = 0,
+	RIGHT_TURN_INDICATOR = 1,
+	HAZARD_STATE = 2
+};
 
+enum ServoDataIdentifier {
+	SERVO_CHANNEL_1 = 0,
+	SERVO_CHANNEL_2 = 1
+};
 
-uint16_t serialUpdate();						// Update Data from serial communication
-void serialConfigure(HardwareSerial *_SerialPort,	// Serial interface on arduino
-					uint32_t baud,				// Baudrate
-					uint8_t byteFormat,			// e.g. SERIAL_8N1 | start bit, data bit, stop bit
-					uint8_t _TxEnablePin,		// Pin to switch between Transmit and Receive
-					uint8_t _protocolVersion = 1	// Protocol Version
-);
-uint16_t calculateCRC(uint8_t bufferSize);		// Calculate CRC based on buffersize
-bool getLightData(uint8_t lightOption);			// Get Light State from Serial Interface
-bool getAdditionalData(uint8_t additionalOption);	// Get Additional Data from Serial Interface
-uint16_t getServoData(uint8_t servoOption);		// Get Servo State from Serial Interface
+class SerialCommSlave {
+public:
+    // Establish Serial Communication
+    void begin(
+		// The Serial Communication Port
+		HardwareSerial* _SerialPort,
+		// The connection speed
+		uint32_t baud,
+		// The serial data format
+		uint8_t byteFormat,
+		// The pin used to enable transmission
+		uint8_t _TxEnablePin,
+		// The protocol version
+		uint8_t _protocolVersion
+	);
+	// Update Data from serial communication
+    uint16_t update();
+	// Get Light Data from specific light
+    bool getLightData(LightIdentifier lightOption);
+	// Get Additional Data from specific option
+    bool getAdditionalData(AdditionalDataIdentifier additionalOption);
+    // Get Servo Data from specific option
+    uint16_t getServoData(ServoDataIdentifier servoOption);
+    // Get Connection Status
+    bool getConnectionStatus();
+    // Get Error Count
+    uint16_t getErrorCount();
+
+private:
+	// Constants, replacing the #defines
+    static constexpr uint8_t BUFFER_SIZE = 64;
+    static constexpr uint8_t MIN_BUFFER_SIZE = 4;
+    static constexpr uint8_t BUFFER_EMPTY = 0;
+    static constexpr uint8_t FUNC_LIGHT_DATA = 1;
+    static constexpr uint8_t FUNC_LIGHT_SERVO = 2;
+    static constexpr uint16_t MAX_TIME_SIGNAL = 1000;
+    static constexpr uint16_t WAIT_FOR_NEXT_BYTE = 1000;
+    static constexpr uint8_t BIT_COUNT = 8;
+    static constexpr uint16_t POLYNOMIAL = 0xA001;
+    // Private helper function
+    uint16_t calculateCRC(uint8_t bufferSize);
+
+    // All your former global variables are now private members
+    uint8_t frame[BUFFER_SIZE];
+    uint8_t TxEnablePin;
+    uint8_t protocolVersion = 1;
+    uint16_t errorCount = 0;
+    HardwareSerial* SerialPort;
+
+    uint8_t lightDataFromSerial = 0;
+    uint8_t additionalDataFromSerial = 0;
+    uint16_t servoMicrosFromSerial[2] = {0, 0};
+    uint32_t lastValidPackage;
+    bool connectionLost = true;
+};
 
 #endif

@@ -120,14 +120,14 @@ VehicleConfig vehicleConfig = {
 	},
 	.servoChannel1 = {
 		.outputPin = 9,
-		.minMicroseconds = 1000,
-		.maxMicroseconds = 2000,
+		.minMicroseconds = 1020,
+		.maxMicroseconds = 2020,
 		.defaultMicroseconds = 1500
 	},
 	.servoChannel2 = {
 		.outputPin = 10,
-		.minMicroseconds = 1000,
-		.maxMicroseconds = 2000,
+		.minMicroseconds = 1520,
+		.maxMicroseconds = 1950,
 		.defaultMicroseconds = 1500
 	}
 };

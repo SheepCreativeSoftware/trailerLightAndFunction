@@ -28,6 +28,8 @@
 #include "serialCommSlave.h"
 #include "lightFunctions.h"
 #include "starterBrightnessAdjustment.h"
+#include <Servo.h>
+#include "servoControl.h"
 
 /************************************
  * Definition and Initialisation 
@@ -49,7 +51,11 @@ bool pulseStatus = false;
 uint32_t StatusPreviousMillis = 0;
 uint32_t blinkOnTime = 0;
 bool serialIsSent[1] = { false };
+
+SerialCommSlave truckSerial;
 StarterAdjustedBrightness brightnessAdjust;
+Servo servoChannel1;
+Servo servoChannel2;
 
 //Functions
 bool controllerStatus(bool);
@@ -57,7 +63,7 @@ uint8_t blink(uint16_t);
 
 void setup() {
 	if (vehicleConfig.serialConfig.isEnabled == true) {
-	serialConfigure(&SerialHW,
+	truckSerial.begin(&SerialHW,
 					vehicleConfig.serialConfig.baudRate,
 					vehicleConfig.serialConfig.byteFormat,
 					vehicleConfig.serialConfig.outTxEnablePin,
@@ -124,27 +130,60 @@ void setup() {
 	brightnessAdjust.configureBrightnessLevels(LightType::AUX, LightModes::PRIMARY, vehicleConfig.auxLight.primaryOnBrightness);
 }
 
-void loop() {                             // put your main code here, to run repeatedly:
-	bool errorFlag = false;                 // local var for error status
+void loop() {
+	bool errorFlag = false;
+
+	/*
+	 * Update the serial communication
+	 */
 
 	if (vehicleConfig.serialConfig.isEnabled == true) {
-		serialUpdate();
+		truckSerial.update();
 	}
 
-	bool parkLightState = getLightData(LightIdentifier::PARK_LIGHT);
-	bool brakeLightState = getLightData(LightIdentifier::BRAKE_LIGHT);
-	bool reverseLightState = getLightData(LightIdentifier::REVERSE_LIGHT);
-	bool rightTurnIndicatorState = getLightData(LightIdentifier::RIGHT_BLINK);
-	bool leftTurnIndicatorState = getLightData(LightIdentifier::LEFT_BLINK);
-	bool auxLightState = getLightData(LightIdentifier::AUX_LIGHT);
-	bool beaconLightState = getLightData(LightIdentifier::BEACON_LIGHT);
-	bool isStarterActive = getLightData(LightIdentifier::DIMM_LIGHTS);
-	bool isLeftTurnIndicatorActive = getAdditionalData(0);
-	bool isRightTurnIndicatorActive = getAdditionalData(1);
-	bool isHazardActive = getAdditionalData(2);
+	bool parkLightState = truckSerial.getLightData(LightIdentifier::PARK_LIGHT);
+	bool brakeLightState = truckSerial.getLightData(LightIdentifier::BRAKE_LIGHT);
+	bool reverseLightState = truckSerial.getLightData(LightIdentifier::REVERSE_LIGHT);
+	bool rightTurnIndicatorState = truckSerial.getLightData(LightIdentifier::RIGHT_BLINK);
+	bool leftTurnIndicatorState = truckSerial.getLightData(LightIdentifier::LEFT_BLINK);
+	bool auxLightState = truckSerial.getLightData(LightIdentifier::AUX_LIGHT);
+	bool beaconLightState = truckSerial.getLightData(LightIdentifier::BEACON_LIGHT);
+	bool isStarterActive = truckSerial.getLightData(LightIdentifier::DIMM_LIGHTS);
+	bool isLeftTurnIndicatorActive = truckSerial.getAdditionalData(AdditionalDataIdentifier::LEFT_TURN_INDICATOR);
+	bool isRightTurnIndicatorActive = truckSerial.getAdditionalData(AdditionalDataIdentifier::RIGHT_TURN_INDICATOR);
+	bool isHazardActive = truckSerial.getAdditionalData(AdditionalDataIdentifier::HAZARD_STATE);
 
-	uint16_t servoChannel1Micros = getServoData(0);
-	uint16_t servoChannel2Micros = getServoData(1);
+	uint16_t servoChannel1Position = truckSerial.getServoData(ServoDataIdentifier::SERVO_CHANNEL_1);
+	uint16_t servoChannel2Position = truckSerial.getServoData(ServoDataIdentifier::SERVO_CHANNEL_2);
+
+	bool connectionStatus = truckSerial.getConnectionStatus();
+	if (connectionStatus == false) errorFlag = true;
+
+	/*
+	 * Update the servo control
+	 */
+
+	controlServo(
+		connectionStatus,
+		servoChannel1,
+		servoChannel1Position,
+		vehicleConfig.servoChannel1.outputPin,
+		vehicleConfig.servoChannel1.minMicroseconds,
+		vehicleConfig.servoChannel1.maxMicroseconds
+	);
+
+	controlServo(
+		connectionStatus,
+		servoChannel2,
+		servoChannel2Position,
+		vehicleConfig.servoChannel2.outputPin,
+		vehicleConfig.servoChannel2.minMicroseconds,
+		vehicleConfig.servoChannel2.maxMicroseconds
+	);
+
+	/*
+	 * Update the lights
+	 */
 
 	setBooleanLight(
 		vehicleConfig.parkingLight.outputPin,
@@ -234,6 +273,10 @@ void loop() {                             // put your main code here, to run rep
 			break;
 	};
 
+	/*
+	 * Update the debug information
+	 */
+
 	if (DEBUGLEVEL >= 1) {
 		digitalWrite(vehicleConfig.generalConfig.statusLightPin, controllerStatus(errorFlag));
 	}
@@ -270,9 +313,15 @@ void loop() {                             // put your main code here, to run rep
 				SerialUSB.print("  - Starter Active: ");
 				SerialUSB.println(isStarterActive ? "ON" : "OFF");
 				SerialUSB.print("  - Servo Channel 1: ");
-				SerialUSB.println(servoChannel1Micros);
+				SerialUSB.println(servoChannel1Position);
+				SerialUSB.print("  - Servo Output 1: ");
+				SerialUSB.println(servoChannel1.read());
 				SerialUSB.print("  - Servo Channel 2: ");
-				SerialUSB.println(servoChannel2Micros);
+				SerialUSB.println(servoChannel2Position);
+				SerialUSB.print("  - Servo Output 2: ");
+				SerialUSB.println(servoChannel2.read());
+				SerialUSB.print("  - Connection Status: ");
+				SerialUSB.println(truckSerial.getConnectionStatus() ? "OK" : "ERROR");
 				serialIsSent[0] = true;
 			} else if((millis()%1000 < 500) && (serialIsSent[0] == true)) {
 				serialIsSent[0] = false;
