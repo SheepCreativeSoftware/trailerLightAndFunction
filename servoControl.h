@@ -20,10 +20,8 @@
 #define _SERVO_CONTROL_H_
 
 #include "Arduino.h"							// Add base lib
-#include <Servo.h>
 
-void controlServo(bool connectionStatus, Servo& servo, uint16_t position, uint8_t outputPin, uint16_t minMicroseconds, uint16_t maxMicroseconds);
-uint32_t convertRange(uint32_t signal, uint32_t inMin = 0, uint32_t inMax = 1023, uint32_t outMin = 1020, uint32_t outMax = 1980);
-void positionServo(bool connectionStatus, Servo& servo, bool isUp, bool isDown, uint8_t outputPin, uint16_t minMicroseconds, uint16_t maxMicroseconds);
+void setupHardwareServo();
+void writeHardwareServo(int microSeconds, int pin, uint16_t minMicroseconds = 1000, uint16_t maxMicroseconds = 2000);
 
 #endif

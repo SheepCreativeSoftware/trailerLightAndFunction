@@ -28,7 +28,6 @@
 #include "serialCommSlave.h"
 #include "lightFunctions.h"
 #include "starterBrightnessAdjustment.h"
-#include <Servo.h>
 #include "servoControl.h"
 
 /************************************
@@ -54,8 +53,6 @@ bool serialIsSent[1] = { false };
 
 SerialCommSlave truckSerial;
 StarterAdjustedBrightness brightnessAdjust;
-Servo servoChannel1;
-Servo servoChannel2;
 
 //Functions
 bool controllerStatus(bool);
@@ -115,9 +112,6 @@ void setup() {
 		vehicleConfig.auxLight.fadeOffTime
 	);
 
-	pinMode(vehicleConfig.servoChannel1.outputPin, OUTPUT);
-	digitalWrite(vehicleConfig.servoChannel1.outputPin, LOW);
-
 	// Initialize brightness adjustment
 	brightnessAdjust.setupAdjustmentParameters(vehicleConfig.generalLightConfig.starterDimmingFactor, vehicleConfig.generalLightConfig.starterDimmingMultiplier);
 	brightnessAdjust.configureBrightnessLevels(LightType::PARKING, LightModes::PRIMARY, vehicleConfig.parkingLight.primaryOnBrightness);
@@ -131,6 +125,8 @@ void setup() {
 	brightnessAdjust.configureBrightnessLevels(LightType::BRAKE, LightModes::PRIMARY, vehicleConfig.brakeLight.primaryOnBrightness);
 	brightnessAdjust.configureBrightnessLevels(LightType::BRAKE, LightModes::SECONDARY, vehicleConfig.brakeLight.secondaryOnBrightness);
 	brightnessAdjust.configureBrightnessLevels(LightType::AUX, LightModes::PRIMARY, vehicleConfig.auxLight.primaryOnBrightness);
+
+	setupHardwareServo();
 }
 
 void loop() {
@@ -159,15 +155,35 @@ void loop() {
 	bool isServo2PositionDown = truckSerial.getAdditionalData(AdditionalDataIdentifier::SERVO_POSITION_DOWN);
 
 	uint16_t servoChannel1Position = truckSerial.getServoData(ServoDataIdentifier::SERVO_CHANNEL_1);
+	uint16_t servoChannel2Position = truckSerial.getServoData(ServoDataIdentifier::SERVO_CHANNEL_2);
 
 	bool connectionStatus = truckSerial.getConnectionStatus();
-	if (connectionStatus == false) errorFlag = true;
+	if (connectionStatus == false) {
+		errorFlag = true;
+
+		writeHardwareServo(vehicleConfig.servoChannel1.defaultMicroseconds, vehicleConfig.servoChannel1.outputPin);
+		writeHardwareServo(vehicleConfig.servoChannel2.defaultMicroseconds, vehicleConfig.servoChannel2.outputPin);
+
+	} else {
+		writeHardwareServo(
+			servoChannel1Position,
+			vehicleConfig.servoChannel1.outputPin,
+			vehicleConfig.servoChannel1.minMicroseconds,
+			vehicleConfig.servoChannel1.maxMicroseconds
+		);
+		writeHardwareServo(
+			servoChannel2Position,
+			vehicleConfig.servoChannel2.outputPin,
+			vehicleConfig.servoChannel2.minMicroseconds,
+			vehicleConfig.servoChannel2.maxMicroseconds
+		);
+	}
 
 	/*
 	 * Update the servo control
 	 */
 
-	controlServo(
+/* 	controlServo(
 		connectionStatus,
 		servoChannel1,
 		servoChannel1Position,
@@ -178,13 +194,12 @@ void loop() {
 
 	positionServo(
 		connectionStatus,
-		servoChannel2,
 		isServo2PositionUp,
 		isServo2PositionDown,
 		vehicleConfig.servoChannel2.outputPin,
 		vehicleConfig.servoChannel2.minMicroseconds,
 		vehicleConfig.servoChannel2.maxMicroseconds
-	);
+	); */
 
 	/*
 	 * Update the lights
@@ -325,13 +340,13 @@ void loop() {
 				SerialUSB.print("  - Servo Channel 1: ");
 				SerialUSB.println(servoChannel1Position);
 				SerialUSB.print("  - Servo Output 1: ");
-				SerialUSB.println(servoChannel1.read());
+				//SerialUSB.println(servoChannel1.read());
 				SerialUSB.print("  - Servo Channel 2 UP: ");
 				SerialUSB.println(isServo2PositionUp);
 				SerialUSB.print("  - Servo Channel 2 DOWN: ");
 				SerialUSB.println(isServo2PositionDown);
 				SerialUSB.print("  - Servo Output 2: ");
-				SerialUSB.println(servoChannel2.read());
+				//SerialUSB.println(servoChannel2.read());
 				SerialUSB.print("  - Connection Status: ");
 				SerialUSB.println(truckSerial.getConnectionStatus() ? "OK" : "ERROR");
 				serialIsSent[0] = true;

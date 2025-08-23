@@ -122,13 +122,13 @@ VehicleConfig vehicleConfig = {
 		.outputPin = 9,
 		.minMicroseconds = 1020,
 		.maxMicroseconds = 2020,
-		.defaultMicroseconds = 1500
+		.defaultMicroseconds = 1520
 	},
 	.servoChannel2 = {
 		.outputPin = 10,
-		.minMicroseconds = 1350,
-		.maxMicroseconds = 1850,
-		.defaultMicroseconds = 1500
+		.minMicroseconds = 1200,
+		.maxMicroseconds = 1900,
+		.defaultMicroseconds = 1520
 	},
 	.combinedBrakeTurnSignalLightConfig = {
 		.singleLightOption = true
