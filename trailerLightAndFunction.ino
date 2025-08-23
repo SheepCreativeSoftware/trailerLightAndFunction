@@ -53,6 +53,8 @@ bool serialIsSent[1] = { false };
 
 SerialCommSlave truckSerial;
 StarterAdjustedBrightness brightnessAdjust;
+Servo servoChannel1;
+Servo servoChannel2;
 
 //Functions
 bool controllerStatus(bool);
@@ -126,7 +128,7 @@ void setup() {
 	brightnessAdjust.configureBrightnessLevels(LightType::BRAKE, LightModes::SECONDARY, vehicleConfig.brakeLight.secondaryOnBrightness);
 	brightnessAdjust.configureBrightnessLevels(LightType::AUX, LightModes::PRIMARY, vehicleConfig.auxLight.primaryOnBrightness);
 
-	setupHardwareServo();
+	//setupHardwareServo();
 }
 
 void loop() {
@@ -161,22 +163,28 @@ void loop() {
 	if (connectionStatus == false) {
 		errorFlag = true;
 
-		writeHardwareServo(vehicleConfig.servoChannel1.defaultMicroseconds, vehicleConfig.servoChannel1.outputPin);
-		writeHardwareServo(vehicleConfig.servoChannel2.defaultMicroseconds, vehicleConfig.servoChannel2.outputPin);
-
+		//servoChannel1.writeMicroseconds(vehicleConfig.servoChannel1.defaultMicroseconds, vehicleConfig.servoChannel1.outputPin);
+		//servoChannel2.writeMicroseconds(vehicleConfig.servoChannel2.defaultMicroseconds, vehicleConfig.servoChannel2.outputPin);
+		servoChannel1.detach(vehicleConfig.servoChannel1.outputPin);
+		servoChannel2.detach(vehicleConfig.servoChannel2.outputPin);
 	} else {
-		writeHardwareServo(
-			servoChannel1Position,
-			vehicleConfig.servoChannel1.outputPin,
-			vehicleConfig.servoChannel1.minMicroseconds,
-			vehicleConfig.servoChannel1.maxMicroseconds
-		);
-		writeHardwareServo(
-			servoChannel2Position,
-			vehicleConfig.servoChannel2.outputPin,
-			vehicleConfig.servoChannel2.minMicroseconds,
-			vehicleConfig.servoChannel2.maxMicroseconds
-		);
+		if(!servoChannel1.isAttached(vehicleConfig.servoChannel1.outputPin)) {
+			servoChannel1.attach(
+				vehicleConfig.servoChannel1.outputPin,
+				vehicleConfig.servoChannel1.minMicroseconds,
+				vehicleConfig.servoChannel1.maxMicroseconds
+			);
+		}
+		servoChannel1.writeMicroseconds(servoChannel1Position, vehicleConfig.servoChannel1.outputPin);
+
+		if(!servoChannel2.isAttached(vehicleConfig.servoChannel2.outputPin)) {
+			servoChannel2.attach(
+				vehicleConfig.servoChannel2.outputPin,
+				vehicleConfig.servoChannel2.minMicroseconds,
+				vehicleConfig.servoChannel2.maxMicroseconds
+			);
+		}
+		servoChannel2.writeMicroseconds(servoChannel2Position, vehicleConfig.servoChannel2.outputPin);
 	}
 
 	/*

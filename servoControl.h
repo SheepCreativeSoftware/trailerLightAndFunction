@@ -21,7 +21,21 @@
 
 #include "Arduino.h"							// Add base lib
 
-void setupHardwareServo();
-void writeHardwareServo(int microSeconds, int pin, uint16_t minMicroseconds = 1000, uint16_t maxMicroseconds = 2000);
+//void setupHardwareServo();
+//void writeHardwareServo(int microSeconds, int pin, uint16_t minMicroseconds = 1000, uint16_t maxMicroseconds = 2000);
+
+class Servo {
+	private:
+		uint16_t _threshold;
+		uint8_t _attachedServo[2];
+		uint16_t _minMicroseconds[2];
+		uint16_t _maxMicroseconds[2];
+		uint16_t _currentMicroseconds[2];
+	public:
+		void attach(uint8_t pin, uint16_t minMicroseconds = 1000, uint16_t maxMicroseconds = 2000, uint16_t threshold = 15);
+		void writeMicroseconds(uint16_t microSeconds, uint8_t pin);
+		void detach(uint8_t pin);
+		bool isAttached(uint8_t pin);
+};
 
 #endif
